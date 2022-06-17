@@ -9,7 +9,7 @@ import Foundation
 
 
 func clearScreen () {
-    print("\003[2J\003[H")
+    print("\u{001B}[2J")
 }
 
 clearScreen()
@@ -20,6 +20,13 @@ let _ = readLine(strippingNewline: false)
 var ttt = TicTacToe(board_size: 3, mode: "hard")
 
 while true {
+    clearScreen()
+    if ttt.checkGameOver() != "NotOver" {
+        ttt.printBoard()
+        print(ttt.checkGameOver())
+        break
+    }
+
     clearScreen()
     ttt.printBoard()
     print("Enter your move - row,col: ")

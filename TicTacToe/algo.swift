@@ -12,7 +12,7 @@ class TicTacToe {
     init (board_size: Int, mode: String) {
         self.boardSize = board_size
         self.gameMode = mode
-        generateBoard() 
+        generateBoard()  
     }
     
     func generateBoard () {
@@ -132,38 +132,92 @@ class TicTacToe {
         return occurrences
     }
     
+    func movesPreventingPlayerWin()  -> [[Int]] {
+        var plausibleMoves = [[Int]]()
+        
+        // first we look at the rows
+        for row in 0...self.boardSize-1 {
+            if self.checkRowOccurrences(row: row, occurrence: self.playerPiece).count == self.boardSize-1 {
+                // we look for the rows with one free space, and the rest are occupied by the player
+                // then append the positions to the plausibleMoves array
+                plausibleMoves.append(contentsOf: checkRowOccurrences(row: row, occurrence: self.space))
+            }
+        }
+        
+        // next we look at the columns
+        for column in 0...self.boardSize-1 {
+            if self.checkColumnOccurrences(column: column, occurrence: self.playerPiece).count == self.boardSize-1 {
+                // we look for columns with one free space, and the rest occupied by the player
+                // then append the positions to the plausibleMoves array
+                
+                plausibleMoves.append(contentsOf: checkColumnOccurrences(column: column, occurrence: self.space))
+            }
+        }
+        
+        // diagonal 1
+        if checkDiag1Occurrences(occurrence: self.playerPiece).count == boardSize-1 {
+            plausibleMoves.append(contentsOf: checkDiag1Occurrences(occurrence: self.space))
+        }
+        // diag 2
+        if checkDiag2Occurrences(occurrence: self.playerPiece).count == boardSize-1 {
+            plausibleMoves.append(contentsOf: checkDiag2Occurrences(occurrence: self.space))
+        }
+        return plausibleMoves
+    }
+    
+    func movesForBotWin () -> [[Int]] {
+        var plausibleMoves = [[Int]]()
+        
+        // first we look at the rows
+        for row in 0...self.boardSize-1 {
+            if self.checkRowOccurrences(row: row, occurrence: self.botPiece).count == self.boardSize-1 {
+                // we look for the rows with one free space, and the rest are occupied by the bot
+                // then append the positions to the plausibleMoves array
+                plausibleMoves.append(contentsOf: checkRowOccurrences(row: row, occurrence: self.space))
+            }
+        }
+        
+        // next we look at the columns
+        for column in 0...self.boardSize-1 {
+            if self.checkColumnOccurrences(column: column, occurrence: self.botPiece).count == self.boardSize-1 {
+                // we look for columns with one free space, and the rest occupied by the player
+                // then append the positions to the plausibleMoves array
+                
+                plausibleMoves.append(contentsOf: checkColumnOccurrences(column: column, occurrence: self.space))
+            }
+        }
+        
+        // diagonal 1
+        if checkDiag1Occurrences(occurrence: self.botPiece).count == boardSize-1 {
+            plausibleMoves.append(contentsOf: checkDiag1Occurrences(occurrence: self.space))
+        }
+        // diag 2
+        if checkDiag2Occurrences(occurrence: self.botPiece).count == boardSize-1 {
+            plausibleMoves.append(contentsOf: checkDiag2Occurrences(occurrence: self.space))
+        }
+        return plausibleMoves
+    }
+    
+    
     func calcBotMove (autoPlace: Bool = true) -> [Int] {
         var plausibleMoves = [[Int]]()
         var move = [Int]()
         
         if self.gameMode.lowercased() == "easy" {
-            plausibleMoves = unoccupiedPlaces()
+            plausibleMoves = self.unoccupiedPlaces()
+        } else if self.gameMode.lowercased() == "normal" {
+            plausibleMoves = self.movesPreventingPlayerWin()
         } else {
-            // first we look at the rows
-            for row in 0...self.boardSize-1 {
-                if self.checkRowOccurrences(row: row, occurrence: self.playerPiece).count == self.boardSize-1 {
-                    // we look for the rows with one free space, and the rest are occupied by the player
-                    // then append the positions to the plausibleMoves array
-                    plausibleMoves.append(contentsOf: checkRowOccurrences(row: row, occurrence: self.space))
-                }
-            }
-            // next we look at the columns
-            for column in 0...self.boardSize-1 {
-                if self.checkColumnOccurrences(column: column, occurrence: self.playerPiece).count == self.boardSize-1 {
-                    // we look for columns with one free space, and the rest occupied by the player
-                    // then append the positions to the plausibleMoves array
-                    
-                    plausibleMoves.append(contentsOf: checkColumnOccurrences(column: column, occurrence: self.space))
-                }
-            }
-            
-            // diagonal 1
-            if checkDiag1Occurrences(occurrence: self.playerPiece).count == boardSize-1 {
-                plausibleMoves.append(contentsOf: checkDiag1Occurrences(occurrence: self.space))
-            }
-            // diag 2
-            if checkDiag2Occurrences(occurrence: self.playerPiece).count == boardSize-1 {
-                plausibleMoves.append(contentsOf: checkDiag2Occurrences(occurrence: self.space))
+            // Mode is set to "hard"
+            print("Moves Preventing Player Win", self.movesPreventingPlayerWin())
+            print("Moves For Bot Win", self.movesForBotWin())
+            print("Unoccupied Places", self.unoccupiedPlaces())
+            if self.movesForBotWin() != [] {
+                plausibleMoves = self.movesForBotWin()
+            } else if self.movesPreventingPlayerWin() != [] {
+                plausibleMoves = self.movesPreventingPlayerWin()
+            } else {
+                plausibleMoves = self.unoccupiedPlaces()
             }
         }
         
