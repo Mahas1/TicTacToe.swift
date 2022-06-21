@@ -14,27 +14,41 @@ func clearScreen () {
 
 clearScreen()
 print("Welcome to TicTacToe")
-print("Press enter to start the game")
-let _ = readLine(strippingNewline: false)
+print("Press enter to start the game", terminator: "")
+let _ = readLine(strippingNewline: true)
+let inputRegex = try! Regex("\\d{1,}\\s?,\\s?\\d{1,}")
+
 
 var ttt = TicTacToe(board_size: 3, mode: "hard")
 
 while true {
-    clearScreen()
     if ttt.checkGameOver() != "NotOver" {
+        clearScreen()
         ttt.printBoard()
+        print("")
         print(ttt.checkGameOver())
         break
     }
 
     clearScreen()
     ttt.printBoard()
-    print("Enter your move - row,col: ")
+    
+    print("Enter your move - row,col: ", terminator: "")
+//    print("Enter your move - row,col: ")
     let choice: String = readLine(strippingNewline: true)!
+    
+    if try inputRegex.firstMatch(in: choice) == nil {
+        print("Malformed input structure, try again.")
+        continue
+    }
+    
     print(choice)
+    
+    
     if choice == "exit" {
         break
     }
+    
     let userInputArray = choice.components(separatedBy: ",")
     if ttt.checkPlacement(row: Int(userInputArray[0])!, column: Int(userInputArray[1])!) {
         let _ = ttt.placePlayerPiece(row: Int(userInputArray[0])!, column: Int(userInputArray[1])!)
